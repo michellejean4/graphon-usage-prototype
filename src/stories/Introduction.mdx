@@ -1,0 +1,24 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Introduction" />
+
+# Graphon usage and upgrade components
+
+The pieces used in the usage and upgrade prototype. They are built on shadcn/ui patterns with Tailwind v4, so they slot into Graphon's existing app.
+
+Use the toolbar at the top to switch between **light and dark** mode and between the three **usage** states (plenty left, getting close, out of queries).
+
+## Colours
+
+| Token | Used for |
+| --- | --- |
+| `aqua-strong` | Queries, and the upgrade button |
+| `mint-strong` | Storage |
+| `coral-strong` | Members |
+| `destructive` | A limit that has been hit |
+
+## Rules
+
+- One aqua upgrade button per area. Everything else stays neutral.
+- Meters turn red only at 100%. Members never turn red, a full team is normal.
+- The heads up appears at 80% and can be dismissed. At 100% it stays until the reset or an upgrade.
