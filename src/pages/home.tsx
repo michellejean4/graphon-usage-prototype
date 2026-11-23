@@ -40,7 +40,7 @@ export function HomePage() {
         <h1 className="text-xl font-medium tracking-[-0.5px]">{greeting()}, Michelle</h1>
         <div className="ml-auto flex gap-2">
           <Button variant="ghost"><KeyRound /> Create API key</Button>
-          <Button variant={status === 'ok' ? 'default' : 'outline'}><Plus /> New bucket</Button>
+          <Button><Plus /> New bucket</Button>
         </div>
       </div>
 

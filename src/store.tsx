@@ -41,7 +41,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [route, setRoute] = useState<Route>(readRoute)
   const [scenarioId, setScenarioId] = useState<ScenarioId>('close')
   const [planId, setPlan] = useState<PlanId>('free')
-  const [dark, setDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches)
+  const [dark, setDark] = useState(true)
   const [upgrade, setUpgrade] = useState<{ open: boolean; reason: UpgradeReason; target?: PlanId }>({ open: false, reason: 'general' })
   const [bannerDismissed, setBannerDismissed] = useState(false)
   const [wantsTeam, setWantsTeam] = useState(false)
