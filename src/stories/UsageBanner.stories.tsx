@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { UsageBanner } from '@/components/usage-banner'
+import { UsageBanner } from '@/components/usage/usage-banner'
 
 const meta = {
   title: 'Patterns/Usage banner',

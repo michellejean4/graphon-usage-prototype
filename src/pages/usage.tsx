@@ -1,8 +1,8 @@
 import { ArrowUpRight } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
-import { BrandCTA, BrandCompare, BrandLabel, costPerQuery } from '@/components/brand'
-import { DevUsage } from '@/components/dev-usage'
-import { UsageBanner } from '@/components/usage-banner'
+import { BrandCTA, BrandCompare, BrandLabel, costPerQuery } from '@/components/usage/brand'
+import { DevUsage } from '@/components/usage/dev-usage'
+import { UsageBanner } from '@/components/usage/usage-banner'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
 import { Meter, toneFor, type MeterColor, type MeterTone } from '@/components/ui/meter'
@@ -14,14 +14,14 @@ import { useStore } from '@/store'
 
 function MeterRow({ label, value, max, tone, color, valueText, note, noteTone, action }: { label: string; value: number; max: number; tone?: MeterTone; color?: MeterColor; valueText: string; note?: ReactNode; noteTone?: 'warn' | 'out'; action?: ReactNode }) {
   return (
-    <div className="px-4 py-4">
+    <div className="px-5 py-5">
       <div className="flex items-baseline justify-between gap-4 text-sm">
-        <span className="text-muted-foreground">{label}</span>
+        <span className="font-medium">{label}</span>
         <span className="font-medium tabular-nums">{valueText}</span>
       </div>
-      <Meter value={value} max={max} tone={tone} color={color} className="mt-2" />
+      <Meter value={value} max={max} tone={tone} color={color} className="mt-3" />
       {(note || action) && (
-        <div className="mt-1.5 flex items-center justify-between gap-4 text-xs">
+        <div className="mt-3 flex items-center justify-between gap-4 text-xs">
           <span className={cn('text-muted-foreground', noteTone === 'warn' && 'text-warning-text', noteTone === 'out' && 'text-destructive')}>{note}</span>
           {action}
         </div>
@@ -58,7 +58,7 @@ function PaceChart() {
             width={bw - 3}
             height={H - pad.b - y(v)}
             rx={2}
-            className={cn(isProj ? (over ? 'fill-destructive/12' : 'fill-aqua-strong/18') : i === cum.length - 1 ? (over ? 'fill-destructive' : 'fill-aqua-strong') : over ? 'fill-destructive/60' : 'fill-foreground/15')}
+            className={cn(isProj ? (over ? 'fill-destructive/12' : 'fill-chart-1/18') : i === cum.length - 1 ? (over ? 'fill-destructive' : 'fill-chart-1') : over ? 'fill-destructive/60' : 'fill-foreground/15')}
           />
         )
       })}
@@ -72,13 +72,15 @@ function PaceChart() {
 }
 
 export function UsagePage() {
-  const { plan, scenario, used, limit, status, go, openUpgrade } = useStore()
+  const { plan, scenario, used, limit, status, go, openUpgrade, bannerDismissed } = useStore()
   const f = forecast(scenario, limit)
   const next = nextPlan(plan.id)
   const isTop = plan.id === 'business' || plan.id === 'enterprise'
   const [alerts, setAlerts] = useState({ e80: true, e100: true, api: true })
   const membersMax = plan.users
 
+  // The banner above already says when you'll run out, so the row doesn't repeat it
+  const bannerShowing = status !== 'ok' && !bannerDismissed
   const queryNote =
     status === 'out'
       ? `Paused until ${PERIOD.end}. API calls return 429 quota_exceeded.`
@@ -90,8 +92,8 @@ export function UsagePage() {
     <div className="mx-auto w-full max-w-4xl px-6 pt-8 pb-28">
       <div className="flex flex-wrap items-end gap-3">
         <div>
-          <h1 className="text-lg font-medium tracking-tight">Usage</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">
+          <h1 className="text-2xl font-semibold tracking-tight">Usage</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
             {plan.name} plan · {PERIOD.start} to {PERIOD.end} · resets in {PERIOD.resetsIn} days <span title="2026-12-18T00:00:00Z" className="cursor-help underline decoration-dotted underline-offset-2">(Dec 18, 00:00 UTC)</span>
           </p>
         </div>
@@ -100,21 +102,21 @@ export function UsagePage() {
         </div>
       </div>
 
-      {status !== 'ok' && <UsageBanner className="mt-6" />}
+      {status !== 'ok' && <UsageBanner className="mt-8" />}
 
-      <Card className="mt-6 divide-y">
+      <Card className="mt-8 divide-y">
         <MeterRow
           label="Queries this month"
           value={used}
           max={limit}
           valueText={`${used} of ${fmtNum(limit)}`}
-          note={queryNote}
+          note={bannerShowing ? undefined : queryNote}
           noteTone={status === 'out' ? 'out' : status === 'close' ? 'warn' : undefined}
           action={<span className="text-muted-foreground tabular-nums">{scenario.queries.search} search · {scenario.queries.answer} answer · {scenario.queries.research} research</span>}
         />
         <MeterRow
           label="Storage"
-          color="mint"
+          color="chart-2"
           value={scenario.storageGB}
           max={plan.storageGB}
           valueText={`${scenario.storageGB} GB of ${fmtStorage(plan.storageGB)}`}
@@ -122,7 +124,7 @@ export function UsagePage() {
         />
         <MeterRow
           label="Members"
-          color="coral"
+          color="chart-3"
           tone="default"
           value={1}
           max={membersMax}
@@ -132,8 +134,8 @@ export function UsagePage() {
           action={toneFor((1 / membersMax) * 100) !== 'default' && <button onClick={() => openUpgrade('users')} className="font-medium text-primary hover:underline">Add seats</button>}
         />
         <div className="grid grid-cols-2 divide-x text-sm">
-          <div className="px-4 py-3"><div className="text-xs text-muted-foreground">Data in</div><div className="mt-1 font-medium tabular-nums">{scenario.dataInGB} GB</div><div className="text-xs text-muted-foreground">No limit on your plan</div></div>
-          <div className="px-4 py-3"><div className="text-xs text-muted-foreground">Data out</div><div className="mt-1 font-medium tabular-nums">{scenario.bytesOutGB} GB</div><div className="text-xs text-muted-foreground">No limit on your plan</div></div>
+          <div className="px-5 py-5"><div className="text-xs text-muted-foreground">Data in</div><div className="mt-2 font-medium tabular-nums">{scenario.dataInGB} GB</div><div className="mt-1.5 text-xs text-muted-foreground">No limit on your plan</div></div>
+          <div className="px-5 py-5"><div className="text-xs text-muted-foreground">Data out</div><div className="mt-2 font-medium tabular-nums">{scenario.bytesOutGB} GB</div><div className="mt-1.5 text-xs text-muted-foreground">No limit on your plan</div></div>
         </div>
       </Card>
 
@@ -201,7 +203,7 @@ export function UsagePage() {
       </div>
 
       {!isTop && (
-        <section className="mt-6 grid gap-8 rounded-xl border bg-paper p-8 text-ink md:grid-cols-[1fr_340px] md:items-end">
+        <section className="mt-6 grid gap-8 rounded-xl border bg-muted p-8 text-foreground md:grid-cols-[1fr_340px] md:items-end">
           <div>
             <BrandLabel>When you outgrow {plan.name}</BrandLabel>
             <h3 className="mt-2 text-[28px] leading-[1.15] font-semibold tracking-[-0.6px]">
@@ -218,9 +220,9 @@ export function UsagePage() {
             </div>
           </div>
           <div>
-            <p className="text-base leading-6 text-ink-muted">The new limit starts the moment you upgrade. Switch or cancel any time.</p>
+            <p className="text-base leading-6 text-muted-foreground">The new limit starts the moment you upgrade. Switch or cancel any time.</p>
             <BrandCTA className="mt-5" title={`$${next.monthly}/month`} sub={costPerQuery(next.monthly ?? 0, next.queries)} action={`Get ${next.name}`} onClick={() => openUpgrade(status === 'ok' ? 'general' : 'queries')} />
-            <button onClick={() => go('settings/billing')} className="mt-3 text-sm text-ink-muted underline-offset-4 hover:text-ink hover:underline">Compare all plans</button>
+            <button onClick={() => go('settings/billing')} className="mt-3 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">Compare all plans</button>
           </div>
         </section>
       )}

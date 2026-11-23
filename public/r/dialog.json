@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "dialog",
+  "title": "Dialog",
+  "description": "Lightweight dialog used by the upgrade flow.",
+  "dependencies": [
+    "lucide-react"
+  ],
+  "registryDependencies": [
+    "utils",
+    "https://graphon-usage-prototype.vercel.app/r/graphon-theme.json"
+  ],
+  "files": [
+    {
+      "path": "src/components/ui/dialog.tsx",
+      "content": "import { X } from 'lucide-react'\nimport { useEffect, type ReactNode } from 'react'\nimport { cn } from '@/lib/utils'\n\nexport function Dialog({ open, onClose, children, className }: { open: boolean; onClose: () => void; children: ReactNode; className?: string }) {\n  useEffect(() => {\n    if (!open) return\n    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()\n    window.addEventListener('keydown', onKey)\n    return () => window.removeEventListener('keydown', onKey)\n  }, [open, onClose])\n  if (!open) return null\n  return (\n    <div className=\"fixed inset-0 z-50 flex items-center justify-center p-4\">\n      <div className=\"absolute inset-0 bg-black/40\" onClick={onClose} />\n      <div data-slot=\"dialog-content\" role=\"dialog\" aria-modal=\"true\" className={cn('relative w-full max-w-lg rounded-xl border bg-popover text-popover-foreground shadow-lg', className)}>\n        <button onClick={onClose} aria-label=\"Close\" className=\"absolute top-3 right-3 rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground\">\n          <X className=\"size-4\" />\n        </button>\n        {children}\n      </div>\n    </div>\n  )\n}\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

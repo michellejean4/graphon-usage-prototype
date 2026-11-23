@@ -1,6 +1,6 @@
-import { Check, ChevronDown, CircleCheck, CreditCard, FileText, Minus } from 'lucide-react'
+import { Check, CircleCheck, CreditCard, FileText, Minus } from 'lucide-react'
 import { useState } from 'react'
-import { costPerQuery } from '@/components/brand'
+import { costPerQuery } from '@/components/usage/brand'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
 import { Meter } from '@/components/ui/meter'
@@ -45,17 +45,32 @@ export function BillingPage() {
   const rank = (id: PlanId) => ORDER.indexOf(id)
   // Next plan up; Team once someone has tried to invite teammates
   const recommended = wantsTeam && ORDER.indexOf('team') > ORDER.indexOf(plan.id) ? 'team' : nextPlan(plan.id).id
-  const selected: PlanId = recommended
-  const [showCompare, setShowCompare] = useState(false)
+  const [picked, setPicked] = useState<PlanId | null>(null)
+  const [hoverCol, setHoverCol] = useState<PlanId | null>(null)
+  // Columns above the current plan can be clicked to select them
+  const col = (id: PlanId) => rank(id) > rank(plan.id) ? { onClick: () => setPicked(id), onMouseEnter: () => setHoverCol(id), onMouseLeave: () => setHoverCol(null) } : {}
+  const colHover = (id: PlanId) => rank(id) > rank(plan.id) && cn('cursor-pointer transition-colors', hoverCol === id && id !== selected && 'bg-foreground/[0.04]')
+  const selected: PlanId = picked && rank(picked) > rank(plan.id) ? picked : recommended
   const price = (m: number) => (yearly ? Math.round(((m * 10) / 12) * 100) / 100 : m)
 
   return (
     <div className="mx-auto w-full max-w-5xl px-6 pt-8 pb-28">
-      <h1 className="text-lg font-medium tracking-tight">Billing</h1>
-      <p className="mt-0.5 text-sm text-muted-foreground">Switch or cancel any time. Changes apply right away.</p>
+      <h1 className="text-2xl font-semibold tracking-tight">Billing</h1>
+      <p className="mt-2 text-sm text-muted-foreground">Switch or cancel any time. Changes apply right away.</p>
 
       {/* Current plan: info left, stacked meters right, upgrade in a footer strip */}
-      <Card className="mt-6 overflow-hidden">
+      <Card className="mt-8 overflow-hidden">
+        {rank(recommended) > rank(plan.id) && recommended !== 'enterprise' && (
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b bg-muted px-6 py-4 dark:bg-background">
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">{PLANS[recommended].name}</span> gives you {PLANS[recommended].queries / plan.queries <= 10 ? `${Math.round(PLANS[recommended].queries / plan.queries)}x the queries` : `${fmtNum(PLANS[recommended].queries)} queries a month`} and room for {fmtNum(PLANS[recommended].users)} people.
+            </p>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-muted-foreground">Cancel anytime</span>
+              <Button variant="upgrade" size="lg" onClick={() => openUpgrade(wantsTeam ? 'users' : used >= limit * 0.8 ? 'queries' : 'general')}>Upgrade to {PLANS[recommended].name}</Button>
+            </div>
+          </div>
+        )}
         <div className="grid gap-8 p-6 md:grid-cols-[260px_1fr] md:items-center">
           <div>
             <div className="text-xs text-muted-foreground">Current plan</div>
@@ -66,43 +81,32 @@ export function BillingPage() {
             <p className="mt-2 text-xs text-muted-foreground">Usage resets {PERIOD.end}, 00:00 UTC</p>
             <button onClick={() => go('settings/usage')} className="mt-1 text-xs font-medium text-muted-foreground underline-offset-2 hover:text-foreground hover:underline">See detailed usage</button>
           </div>
-          <dl className="space-y-4">
+          <dl className="space-y-5">
             {[
-              { k: 'Queries this month', v: used, max: limit, t: `${used} / ${fmtNum(limit)}`, c: 'aqua' as const },
-              { k: 'Storage', v: scenario.storageGB, max: plan.storageGB, t: `${scenario.storageGB} GB / ${fmtStorage(plan.storageGB)}`, c: 'mint' as const },
-              { k: 'Members', v: 1, max: plan.users, t: `1 / ${fmtNum(plan.users)}`, c: 'coral' as const },
+              { k: 'Queries this month', v: used, max: limit, t: `${used} / ${fmtNum(limit)}`, c: 'chart-1' as const },
+              { k: 'Storage', v: scenario.storageGB, max: plan.storageGB, t: `${scenario.storageGB} GB / ${fmtStorage(plan.storageGB)}`, c: 'chart-2' as const },
+              { k: 'Members', v: 1, max: plan.users, t: `1 / ${fmtNum(plan.users)}`, c: 'chart-3' as const },
             ].map((m) => (
               <div key={m.k}>
                 <dt className="flex justify-between text-sm"><span className="text-muted-foreground">{m.k}</span><span className="font-medium tabular-nums">{m.t}</span></dt>
-                <Meter value={m.v} max={m.max} color={m.c} tone={m.k === 'Members' ? 'default' : undefined} className="mt-2" />
+                <Meter value={m.v} max={m.max} color={m.c} tone={m.k === 'Members' ? 'default' : undefined} className="mt-3" />
               </div>
             ))}
           </dl>
         </div>
-        {rank(recommended) > rank(plan.id) && recommended !== 'enterprise' && (
-          <div className="flex flex-wrap items-center justify-between gap-4 border-t bg-muted/40 px-6 py-4">
-            <p className="text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">{PLANS[recommended].name}</span> gives you {PLANS[recommended].queries / plan.queries <= 10 ? `${Math.round(PLANS[recommended].queries / plan.queries)}x the queries` : `${fmtNum(PLANS[recommended].queries)} queries a month`} and room for {fmtNum(PLANS[recommended].users)} people.
-            </p>
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-muted-foreground">Cancel anytime</span>
-              <Button variant="upgrade" size="lg" onClick={() => openUpgrade(wantsTeam ? 'users' : used >= limit * 0.8 ? 'queries' : 'general')}>Upgrade to {PLANS[recommended].name}</Button>
-            </div>
-          </div>
-        )}
       </Card>
 
       {/* Plans */}
-      <div className="mt-12 flex flex-wrap items-end justify-between gap-3">
+      <div className="mt-14 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-semibold tracking-tight">Plans</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Every plan includes the S3 compatible API, search, answers and research.</p>
+          <h2 className="text-xl font-semibold tracking-tight">Plans</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Every plan includes the S3 compatible API, search, answers and research.</p>
         </div>
         <div className="flex items-center gap-2">
           {yearly && <span className="text-xs text-muted-foreground">2 months free</span>}
           <div className="flex rounded-lg bg-muted p-0.5 text-sm">
             {['Monthly', 'Yearly'].map((l, i) => (
-              <button key={l} onClick={() => setYearly(i === 1)} className={cn('h-7 rounded-md px-2.5 text-muted-foreground', yearly === (i === 1) && 'bg-background text-foreground shadow-xs')}>{l}</button>
+              <button key={l} onClick={() => setYearly(i === 1)} className={cn('h-8 rounded-md px-3 text-muted-foreground', yearly === (i === 1) && 'bg-background text-foreground shadow-xs')}>{l}</button>
             ))}
           </div>
         </div>
@@ -117,12 +121,17 @@ export function BillingPage() {
           return (
             <div
               key={id}
+              role="button"
+              tabIndex={0}
+              aria-pressed={isSel}
+              onClick={() => setPicked(id)}
+              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setPicked(id)}
               className={cn(
-                'relative flex flex-col rounded-xl border bg-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-foreground/25 hover:shadow-lg',
-                isSel && 'border-aqua-strong bg-aqua/[0.05] shadow-md ring-1 ring-aqua-strong hover:border-aqua-strong dark:bg-aqua/[0.07]',
+                'relative flex cursor-pointer flex-col rounded-xl border bg-card p-5 outline-none transition-all duration-200 hover:-translate-y-0.5 hover:border-foreground/25 hover:shadow-lg focus-visible:ring-2 focus-visible:ring-ring',
+                isSel && 'border-upgrade bg-upgrade/[0.04] shadow-md ring-1 ring-upgrade hover:border-upgrade dark:bg-upgrade/[0.08]',
               )}
             >
-              {isRec && <span className="absolute -top-2.5 left-5 rounded-md bg-aqua px-2 py-0.5 text-xs font-medium text-[#111]">Recommended</span>}
+              {isRec && <span className="absolute -top-2.5 left-5 rounded-md bg-upgrade px-2 py-0.5 text-xs font-medium text-white">Recommended</span>}
               <div className="flex items-center justify-between">
                 <span className="text-lg font-semibold">{p.name}</span>
                 {id === 'business' && <span className="text-xs text-muted-foreground">Most popular</span>}
@@ -149,7 +158,7 @@ export function BillingPage() {
 
               <ul className="mt-4 flex-1 space-y-1.5 border-t pt-4 text-sm">
                 {(CARD_FEATURES[id] ?? p.features).map((f) => (
-                  <li key={f} className="flex gap-2"><Check className={cn('mt-0.5 size-4 shrink-0 transition-colors', isSel ? 'text-aqua-strong' : 'text-muted-foreground')} />{f}</li>
+                  <li key={f} className="flex gap-2"><Check className={cn('mt-0.5 size-4 shrink-0 transition-colors', isSel ? 'text-upgrade-text' : 'text-muted-foreground')} />{f}</li>
                 ))}
               </ul>
 
@@ -162,8 +171,8 @@ export function BillingPage() {
                   <Button
                     size="lg"
                     variant={isSel ? 'upgrade' : 'outline'}
-                    className={cn('w-full transition-all', !isSel && 'border-border bg-white text-[#111] shadow-xs hover:bg-white hover:shadow-md dark:border-white dark:bg-white dark:text-[#111] dark:hover:bg-white/90')}
-                    onClick={() => { openUpgrade(id === 'team' && wantsTeam ? 'users' : 'general') }}
+                    className={cn('w-full transition-all', !isSel && 'border-2 border-foreground/90 bg-transparent text-foreground hover:border-foreground hover:bg-foreground/5 dark:border-foreground/90 dark:bg-transparent dark:hover:border-foreground dark:hover:bg-foreground/5')}
+                    onClick={(e) => { e.stopPropagation(); setPicked(id); openUpgrade(id === 'team' && wantsTeam ? 'users' : 'general', id) }}
                   >
                     Upgrade to {p.name}
                   </Button>
@@ -173,49 +182,42 @@ export function BillingPage() {
           )
         })}
       </div>
-      <p className="mt-4 text-center text-xs text-muted-foreground">No commitment. Switch or cancel anytime, and new limits start right away.</p>
+      <p className="mt-6 text-center text-xs text-muted-foreground">No commitment. Switch or cancel anytime, and new limits start right away.</p>
 
-      {/* Enterprise: the top tier gets the most presence */}
-      <section className="mt-4 overflow-hidden rounded-xl border border-[#1f1f1f] bg-[#0f0f10] text-white dark:border-white/15 dark:bg-[#161618]">
+      {/* Enterprise: soft grey panel in light mode, deep panel in dark */}
+      <section className="mt-10 overflow-hidden rounded-xl border bg-muted/70 dark:border-[#3d444d] dark:bg-[#151b23]">
         <div className="grid gap-8 p-8 md:grid-cols-[1fr_1.3fr]">
           <div className="flex flex-col">
-            <div className="text-sm font-medium text-aqua">Enterprise</div>
+            <div className="text-sm font-medium text-muted-foreground">Enterprise</div>
             <h3 className="mt-2 text-3xl font-semibold tracking-tight">Bring the whole data lake.</h3>
-            <p className="mt-3 max-w-sm text-sm leading-6 text-white/60">
+            <p className="mt-3 max-w-sm text-sm leading-6 text-muted-foreground">
               Unlimited storage, queries and seats, deployed in Graphon cloud, your own VPC or on device. Built for security reviews.
             </p>
             <div className="mt-auto flex flex-wrap gap-3 pt-8">
-              <button className="flex h-10 items-center rounded-lg bg-white px-4 text-sm font-medium text-[#111] transition-all hover:-translate-y-px hover:shadow-[0_6px_20px_-6px_rgba(255,255,255,.35)]">Contact sales</button>
-              <button className="flex h-10 items-center rounded-lg border border-white/20 px-4 text-sm font-medium text-white transition-colors hover:border-white/40 hover:bg-white/5">Book a demo</button>
+              <Button size="lg">Contact sales</Button>
+              <Button size="lg" variant="outline" className="bg-background">Book a demo</Button>
             </div>
           </div>
           <div>
-            <div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10 text-center">
+            <div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg border bg-border text-center">
               {[['Unlimited', 'storage'], ['Unlimited', 'queries'], ['Unlimited', 'members']].map(([v, k]) => (
-                <div key={k} className="bg-[#0f0f10] px-3 py-4 dark:bg-[#161618]">
+                <div key={k} className="bg-background px-3 py-4 dark:bg-[#0d1117]">
                   <div className="text-lg font-semibold tracking-tight">{v}</div>
-                  <div className="text-xs text-white/50">{k}</div>
+                  <div className="text-xs text-muted-foreground">{k}</div>
                 </div>
               ))}
             </div>
-            <ul className="mt-6 grid gap-x-6 gap-y-2.5 text-sm text-white/85 sm:grid-cols-2">
+            <ul className="mt-6 grid gap-x-6 gap-y-2.5 text-sm text-foreground/85 sm:grid-cols-2">
               {['Everything in Business', 'SSO with SAML or OIDC', 'SCIM provisioning', 'SOC 2 Type II report', 'HIPAA with a BAA', 'Audit logs', 'Uptime SLA', 'Custom terms and invoicing', 'Named support contact', 'Security review and DPA'].map((f) => (
-                <li key={f} className="flex gap-2"><Check className="mt-0.5 size-4 shrink-0 text-aqua" />{f}</li>
+                <li key={f} className="flex gap-2"><Check className="mt-0.5 size-4 shrink-0 text-upgrade-text" />{f}</li>
               ))}
             </ul>
           </div>
         </div>
       </section>
 
-      {/* Compare: behind a link so the page stays short */}
-      <div className="mt-10 flex justify-center">
-        <Button variant="outline" size="lg" onClick={() => setShowCompare((v) => !v)} aria-expanded={showCompare}>
-          {showCompare ? 'Hide feature comparison' : 'Compare all features'}
-          <ChevronDown className={cn('transition-transform', showCompare && 'rotate-180')} />
-        </Button>
-      </div>
-      {showCompare && (
-      <Card className="mt-4 overflow-hidden">
+      {/* Compare */}
+      <Card className="mt-14 overflow-hidden">
         <CardHeader title="Compare plans" />
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -223,10 +225,10 @@ export function BillingPage() {
               <tr className="border-b">
                 <th className="h-10 px-2 pl-4 text-left font-medium" />
                 {ALL.map((id) => (
-                  <th key={id} className={cn('h-12 px-2 text-center font-medium', id === plan.id && 'bg-muted/50', id === selected && 'rounded-t-xl bg-aqua/5 shadow-[inset_2px_0_0_var(--aqua-strong),inset_-2px_0_0_var(--aqua-strong),inset_0_2px_0_var(--aqua-strong)]')}>
+                  <th key={id} {...col(id)} className={cn('h-12 px-2 text-center font-medium', colHover(id), id === plan.id && 'bg-muted/50', id === selected && 'rounded-t-xl bg-upgrade/5 shadow-[inset_2px_0_0_var(--upgrade),inset_-2px_0_0_var(--upgrade),inset_0_2px_0_var(--upgrade)]')}>
                     {PLANS[id].name}
                     {id === plan.id && <span className="block text-[11px] font-normal text-muted-foreground">Current</span>}
-                    {id === recommended && <span className="block text-[11px] font-medium text-aqua-strong">Recommended</span>}{id === selected && id !== recommended && <span className="block text-[11px] font-medium text-aqua-strong">Selected</span>}
+                    {id === recommended && <span className="block text-[11px] font-medium text-upgrade-text">Recommended</span>}{id === selected && id !== recommended && <span className="block text-[11px] font-medium text-upgrade-text">Selected</span>}
                   </th>
                 ))}
               </tr>
@@ -238,8 +240,8 @@ export function BillingPage() {
                   {ALL.map((id) => {
                     const v = r.get(id)
                     return (
-                      <td key={id} className={cn('p-2 text-center tabular-nums', id === plan.id && 'bg-muted/50', id === selected && 'bg-aqua/5 font-medium shadow-[inset_2px_0_0_var(--aqua-strong),inset_-2px_0_0_var(--aqua-strong)]')}>
-                        {v === true ? <Check className={cn('mx-auto size-4', id === selected ? 'text-aqua-strong' : 'text-foreground')} /> : v === false ? <Minus className="mx-auto size-4 text-muted-foreground/50" /> : v}
+                      <td key={id} {...col(id)} className={cn('p-2 text-center tabular-nums', colHover(id), id === plan.id && 'bg-muted/50', id === selected && 'bg-upgrade/5 font-medium shadow-[inset_2px_0_0_var(--upgrade),inset_-2px_0_0_var(--upgrade)]')}>
+                        {v === true ? <Check className={cn('mx-auto size-4', id === selected ? 'text-upgrade-text' : 'text-foreground')} /> : v === false ? <Minus className="mx-auto size-4 text-muted-foreground/50" /> : v}
                       </td>
                     )
                   })}
@@ -248,8 +250,8 @@ export function BillingPage() {
               <tr>
                 <td className="p-2 pl-4" />
                 {ALL.map((id) => (
-                  <td key={id} className={cn('p-3 text-center', id === plan.id && 'bg-muted/50', id === selected && 'rounded-b-xl bg-aqua/5 shadow-[inset_2px_0_0_var(--aqua-strong),inset_-2px_0_0_var(--aqua-strong),inset_0_-2px_0_var(--aqua-strong)]')}>
-                    {id === selected && <Button variant="upgrade" className="w-full" onClick={() => openUpgrade('general')}>Upgrade</Button>}
+                  <td key={id} {...col(id)} className={cn('p-3 text-center', colHover(id), id === plan.id && 'bg-muted/50', id === selected && 'rounded-b-xl bg-upgrade/5 shadow-[inset_2px_0_0_var(--upgrade),inset_-2px_0_0_var(--upgrade),inset_0_-2px_0_var(--upgrade)]')}>
+                    {id === selected && <Button variant="upgrade" className="w-full" onClick={(e) => { e.stopPropagation(); openUpgrade('general', id) }}>{id === 'enterprise' ? 'Contact sales' : 'Upgrade'}</Button>}
                   </td>
                 ))}
               </tr>
@@ -257,7 +259,6 @@ export function BillingPage() {
           </table>
         </div>
       </Card>
-      )}
 
       {/* Billing details + answers developers look for */}
       <div className="mt-6 grid gap-6 md:grid-cols-2 md:items-start">

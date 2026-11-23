@@ -38,7 +38,7 @@ export function BarChart({ data, labels, highlight, unit = '', height = 120 }: {
                 <div
                   className={cn(
                     'w-full max-w-7 rounded-t-[3px] transition-colors',
-                    i === hi ? 'bg-aqua-strong' : 'bg-foreground/12 group-hover:bg-foreground/25',
+                    i === hi ? 'bg-chart-1' : 'bg-foreground/12 group-hover:bg-foreground/25',
                   )}
                   style={{ height: v ? Math.max(2, (v / top) * height) : 0 }}
                 />

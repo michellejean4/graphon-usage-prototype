@@ -35,9 +35,9 @@ export function PlaygroundPage() {
       </div>
       <div className="flex flex-1 flex-col">
         <div className="flex items-center gap-2 border-b px-6 py-3 text-sm">
-          <button className="flex items-center gap-1.5 rounded-lg border px-2.5 py-1"><Cylinder className="size-4 text-muted-foreground" /> support-calls <ChevronDown className="size-3.5 text-muted-foreground" /></button>
+          <button className="flex h-8 items-center gap-1.5 rounded-lg border px-3"><Cylinder className="size-4 text-muted-foreground" /> support-calls <ChevronDown className="size-3.5 text-muted-foreground" /></button>
           <div className="flex rounded-lg bg-muted p-0.5 text-xs">
-            {['Search', 'Answer', 'Research'].map((m, i) => <span key={m} className={cn('h-6 rounded-md px-2.5 leading-6 text-muted-foreground', i === 1 && 'bg-background text-foreground shadow-xs')}>{m}</span>)}
+            {['Search', 'Answer', 'Research'].map((m, i) => <span key={m} className={cn('h-7 rounded-md px-3 leading-7 text-muted-foreground', i === 1 && 'bg-background text-foreground shadow-xs')}>{m}</span>)}
           </div>
         </div>
 

@@ -3,7 +3,16 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Tokens measured from app.graphon.ai (shadcn/ui neutral + Graphon blue + brand cyan) */
+/*
+  Theme tokens, shadcn/ui style (https://ui.shadcn.com/docs/theming).
+  Base is shadcn "neutral", matching app.graphon.ai. Dark mode uses GitHub's dashboard blacks.
+  Added on top of the shadcn defaults:
+    --upgrade / --upgrade-foreground / --upgrade-hover   the upgrade call to action and selected plan
+    --upgrade-text                                         checkmarks and small accent text (contrast safe)
+    --chart-1 / --chart-2 / --chart-3                      queries / storage / members
+    --topbar                                               the top bar
+    --success, --warning                                   status colours
+*/
 :root {
   --radius: 0.5rem;
   --background: oklch(100% 0 0);
@@ -24,82 +33,66 @@
   --border: oklch(92.2% 0 0);
   --input: oklch(92.2% 0 0);
   --ring: oklch(70.8% 0 0);
-  --brand: #4fd3e6;
-  --brand-foreground: oklch(14.5% 0 0);
+  --chart-1: #2f6fe4;
+  --chart-2: #f5b80f;
+  --chart-3: #7a64ec;
+  --upgrade: #1a5ccf;
+  --upgrade-foreground: #ffffff;
+  --upgrade-hover: #154bb0;
+  --upgrade-text: #1a5ccf;
   --success: oklch(59% 0.18 150);
   --success-text: oklch(50.8% 0.118 165.612);
   --warning: #111111;
   --warning-text: oklch(14.5% 0 0);
-  --chart-1: oklch(55% 0.21 260);
   --sidebar: oklch(98.5% 0 0);
   --sidebar-foreground: oklch(14.5% 0 0);
   --sidebar-accent: oklch(97% 0 0);
   --sidebar-accent-foreground: oklch(20.5% 0 0);
   --sidebar-border: oklch(92.2% 0 0);
-  /* Brand moment tokens, measured from graphonlabs.ai */
-  --aqua: #4fd3e6;
-  --aqua-strong: #12c6d8;
-  --mint-strong: #f2b51f;
-  --coral-strong: #7f6df2;
-  --paper: oklch(97% 0 0);
-  --ink: oklch(14.5% 0 0);
-  --ink-muted: oklch(55.6% 0 0);
-  --ink-line: oklch(92.2% 0 0);
+  --topbar: oklch(98.5% 0 0);
 }
 
 .dark {
-  --background: oklch(14.5% 0 0);
-  --foreground: oklch(98.5% 0 0);
-  --card: oklch(20.5% 0 0);
-  --card-foreground: oklch(98.5% 0 0);
-  --popover: oklch(20.5% 0 0);
-  --popover-foreground: oklch(98.5% 0 0);
+  --background: #010409;
+  --foreground: #f0f6fc;
+  --card: #0d1117;
+  --card-foreground: #f0f6fc;
+  --popover: #151b23;
+  --popover-foreground: #f0f6fc;
   --primary: #f2f0eb;
   --primary-foreground: #111111;
-  --secondary: oklch(26.9% 0 0);
-  --secondary-foreground: oklch(98.5% 0 0);
-  --muted: oklch(26.9% 0 0);
-  --muted-foreground: oklch(70.8% 0 0);
-  --accent: oklch(26.9% 0 0);
-  --accent-foreground: oklch(98.5% 0 0);
+  --secondary: #212830;
+  --secondary-foreground: #f0f6fc;
+  --muted: #151b23;
+  --muted-foreground: #9198a1;
+  --accent: #212830;
+  --accent-foreground: #f0f6fc;
   --destructive: oklch(70.4% 0.191 22.216);
-  --border: oklch(100% 0 0 / 0.1);
-  --input: oklch(100% 0 0 / 0.15);
-  --ring: oklch(55.6% 0 0);
+  --border: rgb(61 68 77 / 0.7);
+  --input: #3d444d;
+  --ring: #656c76;
+  --chart-1: #3a64cc;
+  --chart-2: #d19a2a;
+  --chart-3: #7766ee;
+  --upgrade: #1f63d6;
+  --upgrade-foreground: #ffffff;
+  --upgrade-hover: #2668da;
+  --upgrade-text: #5b93ec;
   --success: oklch(72% 0.17 150);
   --success-text: oklch(76.5% 0.177 163.223);
   --warning: #f2f0eb;
-  --warning-text: oklch(98.5% 0 0);
-  --chart-1: oklch(70% 0.16 255);
-  --sidebar: oklch(20.5% 0 0);
-  --sidebar-foreground: oklch(98.5% 0 0);
-  --sidebar-accent: oklch(26.9% 0 0);
-  --sidebar-accent-foreground: oklch(98.5% 0 0);
-  --sidebar-border: oklch(100% 0 0 / 0.1);
-  --aqua: #4fd3e6;
-  --aqua-strong: #4fd3e6;
-  --mint-strong: #ffcb47;
-  --coral-strong: #9a8cf8;
-  --paper: oklch(20.5% 0 0);
-  --ink: oklch(98.5% 0 0);
-  --ink-muted: oklch(70.8% 0 0);
-  --ink-line: oklch(100% 0 0 / 0.1);
+  --warning-text: #f0f6fc;
+  --sidebar: #0d1117;
+  --sidebar-foreground: #f0f6fc;
+  --sidebar-accent: #212830;
+  --sidebar-accent-foreground: #f0f6fc;
+  --sidebar-border: rgb(61 68 77 / 0.7);
+  --topbar: #010409;
 }
 
 @theme inline {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
-  --font-serif: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-label: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-brand: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-  --color-aqua: var(--aqua);
-  --color-aqua-strong: var(--aqua-strong);
-  --color-mint-strong: var(--mint-strong);
-  --color-coral-strong: var(--coral-strong);
-  --color-paper: var(--paper);
-  --color-ink: var(--ink);
-  --color-ink-muted: var(--ink-muted);
-  --color-ink-line: var(--ink-line);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -123,18 +116,23 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-brand: var(--brand);
-  --color-brand-foreground: var(--brand-foreground);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-upgrade: var(--upgrade);
+  --color-upgrade-foreground: var(--upgrade-foreground);
+  --color-upgrade-hover: var(--upgrade-hover);
+  --color-upgrade-text: var(--upgrade-text);
   --color-success: var(--success);
   --color-success-text: var(--success-text);
   --color-warning: var(--warning);
   --color-warning-text: var(--warning-text);
-  --color-chart-1: var(--chart-1);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
+  --color-topbar: var(--topbar);
 }
 
 @layer base {
@@ -143,16 +141,7 @@
   body { @apply bg-background text-foreground font-sans antialiased; }
 }
 
-/* Upgrade button: solid, flat Graphon aqua */
-.gp-cta {
-  background-color: #3fd4e4;
-  border: 1px solid transparent;
-  color: #0a0a0a;
-  box-shadow: 0 1px 2px rgb(0 0 0 / .08);
-  transition: transform .15s ease-out, box-shadow .15s ease-out, background-color .15s ease-out;
-}
-.gp-cta:hover { background-color: #2ac6d8; box-shadow: 0 4px 12px -4px rgb(0 0 0 / .18); }
-.gp-cta:active { transform: scale(.98); box-shadow: 0 1px 2px rgb(0 0 0 / .08); }
-.dark .gp-cta { background-color: #4fd8e8; }
-.dark .gp-cta:hover { background-color: #6fe2ef; box-shadow: 0 4px 14px -4px rgb(0 0 0 / .5); }
-.gp-label { font-size: 12px; font-weight: 500; }
+/* Meter fills: solid in light mode, a rich-to-deep gradient in dark mode */
+.dark [data-slot="meter-indicator"][data-color="chart-1"] { background-image: linear-gradient(90deg, #3d72e0, #3159bd 70%, #213f99); }
+.dark [data-slot="meter-indicator"][data-color="chart-2"] { background-image: linear-gradient(90deg, #e7ab2e, #c08a1c 70%, #8f6208); }
+.dark [data-slot="meter-indicator"][data-color="chart-3"] { background-image: linear-gradient(90deg, #7a66ea, #5f4ed2 70%, #4535a8); }

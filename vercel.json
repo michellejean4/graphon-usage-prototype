@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build && npx storybook build -o dist/storybook --quiet",
+  "buildCommand": "npm run build-all",
   "outputDirectory": "dist",
   "framework": "vite"
 }

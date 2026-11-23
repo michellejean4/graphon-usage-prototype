@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "meter",
+  "title": "Meter",
+  "description": "Usage bar on the chart tokens. Solid in light mode, gradient in dark mode, destructive at 100%.",
+  "dependencies": [],
+  "registryDependencies": [
+    "utils",
+    "https://graphon-usage-prototype.vercel.app/r/graphon-theme.json"
+  ],
+  "files": [
+    {
+      "path": "src/components/ui/meter.tsx",
+      "content": "import { cn } from '@/lib/utils'\n\n/*\n  Meter: a usage bar. Not part of shadcn's default set (closest is Progress), built in the same style.\n  color uses the theme's chart tokens: chart-1 queries, chart-2 storage, chart-3 members.\n  In dark mode the fill becomes a gradient (see index.css, [data-slot=\"meter-indicator\"]).\n  At 100% it turns destructive, unless tone=\"default\" (used for members, where full is normal).\n*/\nexport type MeterTone = 'default' | 'warning' | 'destructive'\nexport type MeterColor = 'chart-1' | 'chart-2' | 'chart-3' | 'muted'\n\nexport function toneFor(pct: number): MeterTone {\n  if (pct >= 100) return 'destructive'\n  if (pct >= 80) return 'warning'\n  return 'default'\n}\n\nconst FILL: Record<MeterColor, string> = { 'chart-1': 'bg-chart-1', 'chart-2': 'bg-chart-2', 'chart-3': 'bg-chart-3', muted: 'bg-foreground/30' }\n\nexport function Meter({ value, max, tone, color = 'chart-1', className, size = 'default' }: { value: number; max: number; tone?: MeterTone; color?: MeterColor; className?: string; size?: 'default' | 'sm' }) {\n  const pct = max === Infinity ? 0 : Math.min(100, (value / max) * 100)\n  const t = tone ?? toneFor(pct)\n  const destructive = t === 'destructive'\n  return (\n    <div\n      data-slot=\"meter\"\n      role=\"meter\"\n      aria-valuenow={value}\n      aria-valuemin={0}\n      aria-valuemax={max === Infinity ? undefined : max}\n      className={cn('overflow-hidden rounded-full bg-foreground/8', size === 'sm' ? 'h-1' : 'h-2', className)}\n    >\n      <div\n        data-slot=\"meter-indicator\"\n        data-color={destructive ? undefined : color}\n        className={cn('h-full rounded-full transition-[width] duration-500', destructive ? 'bg-destructive' : FILL[color])}\n        style={{ width: `${Math.max(pct, value > 0 ? 1.5 : 0)}%` }}\n      />\n    </div>\n  )\n}\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "badge",
+  "title": "Badge",
+  "description": "Pill badge with success, warning and destructive variants.",
+  "dependencies": [
+    "class-variance-authority"
+  ],
+  "registryDependencies": [
+    "utils",
+    "https://graphon-usage-prototype.vercel.app/r/graphon-theme.json"
+  ],
+  "files": [
+    {
+      "path": "src/components/ui/badge.tsx",
+      "content": "import { cva, type VariantProps } from 'class-variance-authority'\nimport type { HTMLAttributes } from 'react'\nimport { cn } from '@/lib/utils'\n\n// Graphon pill badge: h-5 px-2 text-xs font-medium, tinted border\nconst badgeVariants = cva(\n  'inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-xs font-medium [&_svg]:size-3',\n  {\n    variants: {\n      variant: {\n        outline: 'border-border text-foreground',\n        success: 'border-emerald-500/25 bg-emerald-500/10 text-success-text',\n        warning: 'border-border bg-muted text-foreground',\n        destructive: 'border-destructive/30 bg-destructive/10 text-destructive',\n        primary: 'border-primary/25 bg-primary/10 text-primary',\n      },\n    },\n    defaultVariants: { variant: 'outline' },\n  },\n)\n\nexport function Badge({ className, variant, ...props }: HTMLAttributes<HTMLSpanElement> & VariantProps<typeof badgeVariants>) {\n  return <span data-slot=\"badge\" className={cn(badgeVariants({ variant }), className)} {...props} />\n}\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

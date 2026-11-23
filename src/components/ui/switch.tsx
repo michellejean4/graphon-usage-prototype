@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils'
 export function Switch({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
     <button
+      data-slot="switch"
       role="switch"
       aria-checked={checked}
       aria-label={label}

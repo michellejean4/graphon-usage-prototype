@@ -53,7 +53,7 @@ X-Graphon-Quota-Reset: 2026-12-18T00:00:00Z`,
         <h2 className="text-sm font-medium">Check usage from code</h2>
         <div className="ml-auto flex rounded-lg bg-muted p-0.5 text-xs">
           {([['cli', 'CLI'], ['api', 'API'], ['headers', 'Headers']] as const).map(([id, l]) => (
-            <button key={id} onClick={() => setTab(id)} className={cn('h-6 rounded-md px-2.5 font-medium text-muted-foreground', tab === id && 'bg-background text-foreground shadow-xs')}>
+            <button key={id} onClick={() => setTab(id)} className={cn('h-7 rounded-md px-3 font-medium text-muted-foreground', tab === id && 'bg-background text-foreground shadow-xs')}>
               {l}
             </button>
           ))}

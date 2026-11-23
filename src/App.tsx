@@ -1,6 +1,6 @@
 import { DemoBar } from '@/components/demo-bar'
-import { Header, Sidebar } from '@/components/layout'
-import { UpgradeDialog } from '@/components/upgrade-dialog'
+import { Header, Sidebar, SidebarProvider } from '@/components/layout'
+import { UpgradeDialog } from '@/components/usage/upgrade-dialog'
 import { BillingPage } from '@/pages/billing'
 import { HomePage } from '@/pages/home'
 import { BucketsPage, MembersPage, OutsidePage, SimpleSettingsPage } from '@/pages/other'
@@ -10,6 +10,10 @@ import { StoreProvider, useStore } from '@/store'
 
 function Page() {
   const { route } = useStore()
+  return <PageFor route={route} />
+}
+
+function PageFor({ route }: { route: string }) {
   switch (route) {
     case 'buckets': return <BucketsPage />
     case 'playground': return <PlaygroundPage />
@@ -27,13 +31,15 @@ function Page() {
 export default function App() {
   return (
     <StoreProvider>
-      <div className="flex min-h-screen">
-        <Sidebar />
-        <main className="flex min-w-0 flex-1 flex-col bg-background">
-          <Header />
-          <Page />
-        </main>
-      </div>
+      <SidebarProvider>
+        <div className="flex min-h-screen">
+          <Sidebar />
+          <main className="flex min-w-0 flex-1 flex-col bg-background">
+            <Header />
+            <Page />
+          </main>
+        </div>
+      </SidebarProvider>
       <UpgradeDialog />
       <DemoBar />
     </StoreProvider>

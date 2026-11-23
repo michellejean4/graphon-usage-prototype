@@ -12,8 +12,8 @@ export function MembersPage() {
   const full = plan.users <= 1
   return (
     <div className="mx-auto w-full max-w-3xl px-6 pt-8 pb-28">
-      <h1 className="text-lg font-medium tracking-tight">Members</h1>
-      <div className="mt-4 flex items-center gap-3">
+      <h1 className="text-2xl font-semibold tracking-tight">Members</h1>
+      <div className="mt-8 flex items-center gap-3">
         <div className="flex h-8 w-72 items-center gap-2 rounded-lg border px-2.5 text-sm text-muted-foreground"><Search className="size-4" /> Search members</div>
         <div className="ml-auto flex items-center gap-3">
           <span className="text-xs text-muted-foreground tabular-nums">1 of {fmtNum(plan.users)} seats</span>
@@ -41,8 +41,8 @@ export function MembersPage() {
 export function SimpleSettingsPage({ title }: { title: string }) {
   return (
     <div className="mx-auto w-full max-w-3xl px-6 pt-8 pb-28">
-      <h1 className="text-lg font-medium tracking-tight">{title}</h1>
-      <Card className="mt-4 p-4 text-sm text-muted-foreground">Unchanged from today's app.</Card>
+      <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+      <Card className="mt-8 p-4 text-sm text-muted-foreground">Unchanged from today's app.</Card>
     </div>
   )
 }
@@ -128,7 +128,7 @@ X-Graphon-Quota-Reset: 2026-12-18T00:00:00Z
               <div className="text-xs text-muted-foreground">Subject</div>
               <div className="font-medium">{limit - close} Graphon queries left this month</div>
               <div className="mt-4 space-y-3 leading-6">
-                <p>Michelle Jean's workspace has {limit - close} of {limit} queries left. At this pace you'll run out around {runOut}, before your reset on {PERIOD.end}.</p>
+                <p>Michelle's workspace has {limit - close} of {limit} queries left. At this pace you'll run out around {runOut}, before your reset on {PERIOD.end}.</p>
                 <p>Most of it came from the <span className="font-mono text-xs">staging-agent</span> key on <span className="font-mono text-xs">support-calls</span>.</p>
                 <p>If you hit the limit, search, answer and research calls return 429 until the reset. Storage keeps working either way. {next.name} gives you {fmtNum(next.queries)} a month for ${next.monthly}.</p>
               </div>

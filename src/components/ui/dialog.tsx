@@ -13,7 +13,7 @@ export function Dialog({ open, onClose, children, className }: { open: boolean; 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div role="dialog" aria-modal="true" className={cn('relative w-full max-w-lg rounded-xl border bg-popover text-popover-foreground shadow-lg', className)}>
+      <div data-slot="dialog-content" role="dialog" aria-modal="true" className={cn('relative w-full max-w-lg rounded-xl border bg-popover text-popover-foreground shadow-lg', className)}>
         <button onClick={onClose} aria-label="Close" className="absolute top-3 right-3 rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground">
           <X className="size-4" />
         </button>

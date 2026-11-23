@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { UpgradeDialog } from '@/components/upgrade-dialog'
+import { UpgradeDialog } from '@/components/usage/upgrade-dialog'
 import { BillingPage } from '@/pages/billing'
 import { HomePage } from '@/pages/home'
 import { UsagePage } from '@/pages/usage'

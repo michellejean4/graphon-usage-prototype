@@ -1,6 +1,6 @@
 import { KeyRound, Plus } from 'lucide-react'
-import { BarChart } from '@/components/bar-chart'
-import { UsageBanner } from '@/components/usage-banner'
+import { BarChart } from '@/components/usage/bar-chart'
+import { UsageBanner } from '@/components/usage/usage-banner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
@@ -12,16 +12,21 @@ import { useStore } from '@/store'
 
 function Stat({ label, value, of, sub, meter, tone, onClick }: { label: string; value: string; of?: string; sub: string; meter?: { v: number; max: number; color?: MeterColor }; tone?: 'warn' | 'out'; onClick?: () => void }) {
   return (
-    <button onClick={onClick} className={cn('flex flex-col rounded-xl border bg-card px-4 py-3 text-left', onClick && 'hover:bg-muted/40')}>
+    <button onClick={onClick} className={cn('flex flex-col rounded-xl border bg-card px-5 py-4 text-left', onClick && 'hover:bg-muted/40')}>
       <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="mt-1 text-2xl font-medium tracking-tight tabular-nums">
+      <dd className="mt-2 text-2xl font-medium tracking-tight tabular-nums">
         {value}
         {of && <span className={cn('text-base font-normal text-muted-foreground', tone === 'warn' && 'text-warning-text', tone === 'out' && 'text-destructive')}> / {of}</span>}
       </dd>
-      {meter && <Meter value={meter.v} max={meter.max} color={meter.color} size="sm" className="mt-2" />}
-      <dd className="mt-1.5 text-xs text-muted-foreground">{sub}</dd>
+      {meter && <Meter value={meter.v} max={meter.max} color={meter.color} size="sm" className="mt-3" />}
+      <dd className="mt-3 text-xs text-muted-foreground">{sub}</dd>
     </button>
   )
+}
+
+function greeting() {
+  const h = new Date().getHours()
+  return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'
 }
 
 export function HomePage() {
@@ -32,7 +37,7 @@ export function HomePage() {
   return (
     <div className="mx-auto w-full max-w-6xl px-6 pt-8 pb-28">
       <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-xl font-medium tracking-[-0.5px]">Michelle Jean's workspace</h1>
+        <h1 className="text-xl font-medium tracking-[-0.5px]">{greeting()}, Michelle</h1>
         <div className="ml-auto flex gap-2">
           <Button variant="ghost"><KeyRound /> Create API key</Button>
           <Button variant={status === 'ok' ? 'default' : 'outline'}><Plus /> New bucket</Button>
@@ -55,7 +60,7 @@ export function HomePage() {
           label="Stored"
           value={`${scenario.storageGB} GB`}
           of={fmtStorage(plan.storageGB)}
-          meter={{ v: scenario.storageGB, max: plan.storageGB, color: 'mint' }}
+          meter={{ v: scenario.storageGB, max: plan.storageGB, color: 'chart-2' }}
           sub="in 2 buckets"
           onClick={() => go('settings/usage')}
         />

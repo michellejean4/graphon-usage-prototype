@@ -13,13 +13,15 @@ export const buttonVariants = cva(
         secondary: 'bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_8%)]',
         ghost: 'hover:bg-muted hover:text-foreground dark:hover:bg-muted/60',
         link: 'text-primary underline-offset-4 hover:underline h-auto! px-0!',
-        upgrade: 'gp-cta font-medium hover:-translate-y-px',
+        // Added to shadcn's set: the upgrade call to action
+        upgrade: 'bg-upgrade text-upgrade-foreground font-semibold shadow-xs hover:-translate-y-px hover:bg-upgrade-hover hover:shadow-md',
       },
       size: {
-        default: 'h-7 px-2.5 text-[0.8rem]',
-        sm: 'h-6 px-2 text-xs rounded-md',
-        lg: 'h-8 px-3 text-sm',
-        icon: 'size-7',
+        // Same sizes as GitHub's buttons: 28 / 32 / 40px tall, 8 / 12 / 16px side padding
+        default: 'h-8 px-3 text-sm',
+        sm: 'h-7 px-2 text-xs rounded-md',
+        lg: 'h-10 px-4 text-sm',
+        icon: 'size-8',
       },
     },
     defaultVariants: { variant: 'default', size: 'default' },
@@ -34,7 +36,7 @@ export function Button({
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<typeof buttonVariants>) {
   return (
-    <button className={cn(buttonVariants({ variant, size }), className)} {...props}>
+    <button data-slot="button" className={cn(buttonVariants({ variant, size }), className)} {...props}>
       {children}
     </button>
   )

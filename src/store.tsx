@@ -20,8 +20,8 @@ interface Store {
   setPlan: (p: PlanId) => void
   dark: boolean
   setDark: (d: boolean) => void
-  upgrade: { open: boolean; reason: UpgradeReason }
-  openUpgrade: (reason?: UpgradeReason) => void
+  upgrade: { open: boolean; reason: UpgradeReason; target?: PlanId }
+  openUpgrade: (reason?: UpgradeReason, target?: PlanId) => void
   closeUpgrade: () => void
   bannerDismissed: boolean
   wantsTeam: boolean
@@ -42,7 +42,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [scenarioId, setScenarioId] = useState<ScenarioId>('close')
   const [planId, setPlan] = useState<PlanId>('free')
   const [dark, setDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches)
-  const [upgrade, setUpgrade] = useState<{ open: boolean; reason: UpgradeReason }>({ open: false, reason: 'general' })
+  const [upgrade, setUpgrade] = useState<{ open: boolean; reason: UpgradeReason; target?: PlanId }>({ open: false, reason: 'general' })
   const [bannerDismissed, setBannerDismissed] = useState(false)
   const [wantsTeam, setWantsTeam] = useState(false)
 
@@ -69,9 +69,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setBannerDismissed(false)
   }, [])
 
-  const openUpgrade = useCallback((reason: UpgradeReason = 'general') => {
+  const openUpgrade = useCallback((reason: UpgradeReason = 'general', target?: PlanId) => {
     if (reason === 'users') setWantsTeam(true)
-    setUpgrade({ open: true, reason })
+    setUpgrade({ open: true, reason, target })
   }, [])
   const closeUpgrade = useCallback(() => setUpgrade((u) => ({ ...u, open: false })), [])
 

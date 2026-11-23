@@ -14,7 +14,7 @@ export function DemoBar() {
           <button
             key={id}
             onClick={() => setScenario(id)}
-            className={cn('h-6 rounded-md px-2.5 font-medium text-muted-foreground', scenarioId === id && 'bg-background text-foreground shadow-xs')}
+            className={cn('h-7 rounded-md px-3 font-medium text-muted-foreground', scenarioId === id && 'bg-background text-foreground shadow-xs')}
           >
             {SCENARIOS[id].label}
           </button>
@@ -27,7 +27,7 @@ export function DemoBar() {
         Outside the app
       </button>
       {planId !== 'free' && (
-        <button onClick={() => setPlan('free')} className="flex h-7 items-center gap-1 rounded-md px-2 font-medium hover:bg-muted" title="Back to Free plan">
+        <button onClick={() => setPlan('free')} className="flex h-8 items-center gap-1 rounded-md px-3 font-medium hover:bg-muted" title="Back to Free plan">
           <RotateCcw className="size-3.5" /> Reset plan
         </button>
       )}
