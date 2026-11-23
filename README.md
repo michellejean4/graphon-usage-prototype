@@ -3,7 +3,6 @@
 A prototype of how Graphon could show plan limits, usage and upgrades inside the app, built as shadcn/ui components so the team can lift them straight into app.graphon.ai.
 
 - **Prototype:** https://graphon-usage-prototype.vercel.app
-- **Component library (Storybook):** https://graphon-usage-prototype.vercel.app/storybook
 - **shadcn registry:** https://graphon-usage-prototype.vercel.app/r/registry.json
 
 ## What's in it
@@ -60,16 +59,15 @@ Light mode is shadcn neutral, matching app.graphon.ai. Dark mode uses GitHub's d
 
 ## Stack
 
-React 19, TypeScript, Vite, Tailwind CSS v4, shadcn/ui conventions (class-variance-authority, tailwind-merge, lucide-react), Storybook.
+React 19, TypeScript, Vite, Tailwind CSS v4, shadcn/ui conventions (class-variance-authority, tailwind-merge, lucide-react).
 
 ## Run it
 
 ```bash
 npm install
 npm run dev              # the prototype, http://localhost:5173
-npm run storybook        # the component library, http://localhost:6006
 npm run registry:build   # rebuild the shadcn registry into public/r
-npm run build-all        # registry + app + Storybook into dist/
+npm run build-all        # registry + app into dist/
 ```
 
 ## Where things live
@@ -84,6 +82,5 @@ npm run build-all        # registry + app + Storybook into dist/
 | `src/components/` | App shell: sidebar, top bar, feedback panel |
 | `src/pages/` | Home, Usage, Billing, Playground, Members and the outside the app view |
 | `src/data/` | Plans and limits (from Graphon's current Billing page) and demo usage |
-| `src/stories/` | Storybook stories |
 
 Usage numbers are demo data. Plan limits match Graphon's current Billing page.
