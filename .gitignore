@@ -27,3 +27,7 @@ dist-ssr
 storybook-static
 .vercel
 .env*
+
+# Storybook kept locally only
+.storybook
+src/stories
