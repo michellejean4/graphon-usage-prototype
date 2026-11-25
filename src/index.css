@@ -145,3 +145,8 @@
 .dark [data-slot="meter-indicator"][data-color="chart-1"] { background-image: linear-gradient(90deg, #3d72e0, #3159bd 70%, #213f99); }
 .dark [data-slot="meter-indicator"][data-color="chart-2"] { background-image: linear-gradient(90deg, #e7ab2e, #c08a1c 70%, #8f6208); }
 .dark [data-slot="meter-indicator"][data-color="chart-3"] { background-image: linear-gradient(90deg, #7a66ea, #5f4ed2 70%, #4535a8); }
+
+/* Success check in the upgrade dialog draws itself in */
+@keyframes gp-draw { to { stroke-dashoffset: 0; } }
+.gp-draw { animation: gp-draw 500ms ease-out forwards; }
+@media (prefers-reduced-motion: reduce) { .gp-draw { animation: none; stroke-dashoffset: 0 !important; } }

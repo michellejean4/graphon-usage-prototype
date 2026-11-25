@@ -1,5 +1,5 @@
 import { CalendarDays, Check, CreditCard } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { BrandHeadline, BrandLabel, costPerQuery } from '@/components/usage/brand'
 import { GraphonMark } from '@/components/logo'
 import { Dialog } from '@/components/ui/dialog'
@@ -81,7 +81,7 @@ function EnterpriseCard() {
 }
 
 export function UpgradeDialog() {
-  const { upgrade, closeUpgrade, plan, setPlan, status, go } = useStore()
+  const { upgrade, closeUpgrade, plan, setPlan, status, go, used } = useStore()
   const [target, setTarget] = useState<PlanId>(nextPlan(plan.id).id)
   const [yearly, setYearly] = useState(false)
   const [done, setDone] = useState(false)
@@ -224,11 +224,12 @@ export function UpgradeDialog() {
             </>
           ) : (
             <>
-              <BrandLabel className="mt-5">Done</BrandLabel>
-              <BrandHeadline className="mt-2 text-[26px] whitespace-nowrap text-foreground">You're on {t.name}.</BrandHeadline>
+              <DrawnCheck className="mt-6" />
+              <BrandHeadline className="mt-4 text-[26px] whitespace-nowrap text-foreground">You're on {t.name}.</BrandHeadline>
               <p className="mt-2 text-sm text-muted-foreground">
                 {fmtNum(t.queries)} queries a month and {fmtNum(t.users)} members, starting now.{wasOut ? ' Paused calls are already running again.' : ''}
               </p>
+              <QueriesRefill used={used} from={PLANS[cur].queries} to={t.queries} className="mt-8" />
               <div className="mt-auto pt-10">
                 <button onClick={closeUpgrade} className="flex h-10 w-full items-center justify-center rounded-lg bg-primary text-sm font-medium text-primary-foreground shadow-xs transition-all duration-150 hover:-translate-y-px hover:bg-primary/85 hover:shadow-md active:scale-[0.98]">Back to work</button>
                 <button onClick={() => { closeUpgrade(); go('settings/usage') }} className="mt-3 w-full text-center text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground">View usage</button>
@@ -238,5 +239,53 @@ export function UpgradeDialog() {
         </div>
       </div>
     </Dialog>
+  )
+}
+
+// Success: a green check that draws itself in
+function DrawnCheck({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 48 48" className={cn('size-12 text-success', className)} fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <circle cx="24" cy="24" r="21" pathLength={1} className="gp-draw" style={{ strokeDasharray: 1, strokeDashoffset: 1 }} />
+      <path d="M15 24.5l6 6 12-13" pathLength={1} className="gp-draw [animation-delay:350ms]" style={{ strokeDasharray: 1, strokeDashoffset: 1 }} />
+    </svg>
+  )
+}
+
+// Success: queries left refill from the old plan's allowance to the new one
+function QueriesRefill({ used, from, to, className }: { used: number; from: number; to: number; className?: string }) {
+  const before = Math.max(0, from - used)
+  const after = Math.max(0, to - used)
+  const [left, setLeft] = useState(before)
+  const [max, setMax] = useState(from)
+  const raf = useRef(0)
+  useEffect(() => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const start = window.setTimeout(() => {
+      setMax(to)
+      if (reduce) { setLeft(after); return }
+      const t0 = performance.now()
+      const tick = (now: number) => {
+        const k = Math.min(1, (now - t0) / 1200)
+        const ease = 1 - Math.pow(1 - k, 3)
+        setLeft(Math.round(before + (after - before) * ease))
+        if (k < 1) raf.current = requestAnimationFrame(tick)
+      }
+      raf.current = requestAnimationFrame(tick)
+    }, 600)
+    return () => { window.clearTimeout(start); cancelAnimationFrame(raf.current) }
+  }, [before, after, to])
+  // Bar slides straight from the old share to the new one; the number counts up alongside
+  const pct = Math.min(100, (max === from ? before / from : after / to) * 100)
+  return (
+    <div className={cn('rounded-xl border bg-background p-4', className)}>
+      <div className="flex items-baseline justify-between text-sm">
+        <span className="font-medium">Queries left this month</span>
+        <span className="tabular-nums text-muted-foreground"><span className="font-semibold text-foreground">{fmtNum(left)}</span> / {fmtNum(max)}</span>
+      </div>
+      <div className="mt-3 h-2 overflow-hidden rounded-full bg-foreground/8">
+        <div data-slot="meter-indicator" data-color="chart-1" className="h-full rounded-full bg-chart-1 transition-[width] duration-[1200ms] ease-out" style={{ width: `${Math.max(pct, 1.5)}%` }} />
+      </div>
+    </div>
   )
 }
