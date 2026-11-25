@@ -74,9 +74,7 @@ function PaceChart() {
 export function UsagePage() {
   const { plan, scenario, used, limit, status, go, openUpgrade, bannerDismissed } = useStore()
   const f = forecast(scenario, limit)
-  const next = nextPlan(plan.id)
   const isTop = plan.id === 'business' || plan.id === 'enterprise'
-  const [alerts, setAlerts] = useState({ e80: true, e100: true, api: true })
   const membersMax = plan.users
 
   // The banner above already says when you'll run out, so the row doesn't repeat it
@@ -145,87 +143,97 @@ export function UsagePage() {
       </Card>
 
       <div className="mt-6 grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader title="Queries by API key" />
-          <table className="w-full text-sm">
-            <tbody>
-              {scenario.byKey.map((k) => (
-                <tr key={k.name} className="border-b last:border-b-0">
-                  <td className="p-2 pl-4"><div className="font-medium">{k.name}</div><div className="text-xs text-muted-foreground">{k.kind}</div></td>
-                  <td className="w-24 p-2"><div className="h-1 overflow-hidden rounded-full bg-foreground/10"><div className="h-full rounded-full bg-foreground/40" style={{ width: `${(k.queries / used) * 100}%` }} /></div></td>
-                  <td className="p-2 pr-4 text-right tabular-nums">{k.queries}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
-        <Card>
-          <CardHeader title="Queries by bucket" />
-          <table className="w-full text-sm">
-            <tbody>
-              {scenario.byBucket.map((b) => (
-                <tr key={b.name} className="border-b last:border-b-0">
-                  <td className="p-2 pl-4"><div className="font-medium">{b.name}</div><div className="text-xs text-muted-foreground">{b.storage}</div></td>
-                  <td className="w-24 p-2"><div className="h-1 overflow-hidden rounded-full bg-foreground/10"><div className="h-full rounded-full bg-foreground/40" style={{ width: `${(b.queries / used) * 100}%` }} /></div></td>
-                  <td className="p-2 pr-4 text-right tabular-nums">{b.queries}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
+        <BreakdownCard title="Queries by API key" total={used} rows={scenario.byKey.map((k) => ({ name: k.name, sub: k.kind, queries: k.queries }))} />
+        <BreakdownCard title="Queries by bucket" total={used} rows={scenario.byBucket.map((b) => ({ name: b.name, sub: b.storage, queries: b.queries }))} />
       </div>
 
       <div className="mt-6 grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader title="Usage alerts" meta="Sent to workspace admins" />
-          <div className="divide-y text-sm">
-            {([
-              ['e80', 'Email at 80% of any limit'],
-              ['e100', 'Email when a limit is reached'],
-              ['api', 'Warn in CLI and API responses'],
-            ] as const).map(([k, l]) => (
-              <label key={k} className="flex items-center justify-between px-4 py-3">
-                {l}
-                <Switch checked={alerts[k]} onChange={(v) => setAlerts({ ...alerts, [k]: v })} label={l} />
-              </label>
-            ))}
-          </div>
-          <div className="flex items-center justify-between border-t px-4 py-3 text-sm">
-            <span>Webhook at 80% and 100% <span className="text-xs text-muted-foreground">· on Team</span></span>
-            <button onClick={() => openUpgrade('general')} className="text-xs font-medium text-primary hover:underline">Unlock</button>
-          </div>
-          <button onClick={() => go('outside')} className="flex items-center gap-1 px-4 pb-3 text-xs text-muted-foreground hover:text-foreground">
-            See what these look like <ArrowUpRight className="size-3" />
-          </button>
-        </Card>
+        <UsageAlerts />
 
         <DevUsage className="mt-0" />
       </div>
 
-      {!isTop && (
-        <section className="mt-6 grid gap-8 rounded-xl border bg-muted p-8 text-foreground md:grid-cols-[1fr_340px] md:items-end">
-          <div>
-            <BrandLabel>When you outgrow {plan.name}</BrandLabel>
-            <h3 className="mt-2 text-[28px] leading-[1.15] font-semibold tracking-[-0.6px]">
-              {Math.round(next.queries / plan.queries)}x the queries for ${next.monthly} a month.
-            </h3>
-            <div className="mt-6">
-              <BrandCompare
-                rows={[
-                  { key: 'queries', label: 'Queries / month', from: fmtNum(plan.queries), to: fmtNum(next.queries) },
-                  { key: 'users', label: 'Members', from: fmtNum(plan.users), to: fmtNum(next.users) },
-                  { key: 'storage', label: 'Storage', from: fmtStorage(plan.storageGB), to: fmtStorage(next.storageGB) },
-                ].filter((r) => r.from !== r.to)}
-              />
-            </div>
-          </div>
-          <div>
-            <p className="text-base leading-6 text-muted-foreground">The new limit starts the moment you upgrade. Switch or cancel any time.</p>
-            <BrandCTA className="mt-5" title={`$${next.monthly}/month`} sub={costPerQuery(next.monthly ?? 0, next.queries)} action={`Get ${next.name}`} onClick={() => openUpgrade(status === 'ok' ? 'general' : 'queries')} />
-            <button onClick={() => go('settings/billing')} className="mt-3 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">Compare all plans</button>
-          </div>
-        </section>
-      )}
+      {!isTop && <NextPlanPromo />}
     </div>
+  )
+}
+
+// Share of this period's queries, one row per key or bucket
+function BreakdownCard({ title, total, rows }: { title: string; total: number; rows: { name: string; sub: string; queries: number }[] }) {
+  return (
+    <Card>
+      <CardHeader title={title} />
+      <table className="w-full text-sm">
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.name} className="border-b last:border-b-0">
+              <td className="p-2 pl-4"><div className="font-medium">{r.name}</div><div className="text-xs text-muted-foreground">{r.sub}</div></td>
+              <td className="w-24 p-2"><div className="h-1 overflow-hidden rounded-full bg-foreground/10"><div className="h-full rounded-full bg-foreground/40" style={{ width: `${(r.queries / total) * 100}%` }} /></div></td>
+              <td className="p-2 pr-4 text-right tabular-nums">{r.queries}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </Card>
+  )
+}
+
+// Who gets told, and where, as usage climbs
+function UsageAlerts() {
+  const { go, openUpgrade } = useStore()
+  const [alerts, setAlerts] = useState({ e80: true, e100: true, api: true })
+  return (
+  <Card>
+    <CardHeader title="Usage alerts" meta="Sent to workspace admins" />
+    <div className="divide-y text-sm">
+      {([
+        ['e80', 'Email at 80% of any limit'],
+        ['e100', 'Email when a limit is reached'],
+        ['api', 'Warn in CLI and API responses'],
+      ] as const).map(([k, l]) => (
+        <label key={k} className="flex items-center justify-between px-4 py-3">
+          {l}
+          <Switch checked={alerts[k]} onChange={(v) => setAlerts({ ...alerts, [k]: v })} label={l} />
+        </label>
+      ))}
+    </div>
+    <div className="flex items-center justify-between border-t px-4 py-3 text-sm">
+      <span>Webhook at 80% and 100% <span className="text-xs text-muted-foreground">· on Team</span></span>
+      <button onClick={() => openUpgrade('general')} className="text-xs font-medium text-primary hover:underline">Unlock</button>
+    </div>
+    <button onClick={() => go('outside')} className="flex items-center gap-1 px-4 pb-3 text-xs text-muted-foreground hover:text-foreground">
+      See what these look like <ArrowUpRight className="size-3" />
+    </button>
+  </Card>
+  )
+}
+
+// What the next plan up adds
+function NextPlanPromo() {
+  const { plan, status, go, openUpgrade } = useStore()
+  const next = nextPlan(plan.id)
+  return (
+    <section className="mt-6 grid gap-8 rounded-xl border bg-muted p-8 text-foreground md:grid-cols-[1fr_340px] md:items-end">
+      <div>
+        <BrandLabel>When you outgrow {plan.name}</BrandLabel>
+        <h3 className="mt-2 text-[28px] leading-[1.15] font-semibold tracking-[-0.6px]">
+          {Math.round(next.queries / plan.queries)}x the queries for ${next.monthly} a month.
+        </h3>
+        <div className="mt-6">
+          <BrandCompare
+            rows={[
+              { key: 'queries', label: 'Queries / month', from: fmtNum(plan.queries), to: fmtNum(next.queries) },
+              { key: 'users', label: 'Members', from: fmtNum(plan.users), to: fmtNum(next.users) },
+              { key: 'storage', label: 'Storage', from: fmtStorage(plan.storageGB), to: fmtStorage(next.storageGB) },
+            ].filter((r) => r.from !== r.to)}
+          />
+        </div>
+      </div>
+      <div>
+        <p className="text-base leading-6 text-muted-foreground">The new limit starts the moment you upgrade. Switch or cancel any time.</p>
+        <BrandCTA className="mt-5" title={`$${next.monthly}/month`} sub={costPerQuery(next.monthly ?? 0, next.queries)} action={`Get ${next.name}`} onClick={() => openUpgrade(status === 'ok' ? 'general' : 'queries')} />
+        <button onClick={() => go('settings/billing')} className="mt-3 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">Compare all plans</button>
+      </div>
+    </section>
   )
 }

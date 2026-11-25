@@ -49,7 +49,7 @@ export function UsageBanner({ className }: { className?: string }) {
 
 // Plenty left: one quiet line so people know paid plans exist
 function FreeNudge({ className }: { className?: string }) {
-  const { used, limit, plan, go, dismissBanner } = useStore()
+  const { used, limit, plan, go, openUpgrade, dismissBanner } = useStore()
   const next = nextPlan(plan.id)
   return (
     <div className={cn('flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border bg-card px-5 py-4 text-sm dark:bg-background', className)}>
@@ -58,6 +58,7 @@ function FreeNudge({ className }: { className?: string }) {
       </p>
       <div className="flex items-center gap-2">
         <Button variant="outline" onClick={() => go('settings/billing')}>See plans</Button>
+        <Button variant="upgrade" onClick={() => openUpgrade('general', next.id)}>Upgrade to {next.name}</Button>
         <button onClick={dismissBanner} aria-label="Dismiss" className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground">
           <X className="size-4" />
         </button>
