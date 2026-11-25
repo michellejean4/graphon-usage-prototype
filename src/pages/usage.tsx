@@ -231,7 +231,7 @@ function NextPlanPromo() {
       </div>
       <div>
         <p className="text-base leading-6 text-muted-foreground">The new limit starts the moment you upgrade. Switch or cancel any time.</p>
-        <BrandCTA className="mt-5" title={`$${next.monthly}/month`} sub={costPerQuery(next.monthly ?? 0, next.queries)} action={`Get ${next.name}`} onClick={() => openUpgrade(status === 'ok' ? 'general' : 'queries')} />
+        <BrandCTA className="mt-5" title={`$${next.monthly}/month`} sub={costPerQuery(next.monthly ?? 0, next.queries)} action={`Upgrade to ${next.name}`} onClick={() => openUpgrade(status === 'ok' ? 'general' : 'queries')} />
         <button onClick={() => go('settings/billing')} className="mt-3 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">Compare all plans</button>
       </div>
     </section>

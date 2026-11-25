@@ -42,7 +42,7 @@ export function BrandCompare({ rows, focus }: { rows: { key: string; label: stri
 // Price call to action. The whole block is the button.
 export function BrandCTA({ title, sub, action = 'Upgrade', className, ...props }: { title: ReactNode; sub?: ReactNode; action?: string } & ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
-    <button className={cn('bg-upgrade text-upgrade-foreground font-semibold shadow-xs transition-all hover:bg-upgrade-hover hover:shadow-md active:scale-[0.98] flex w-full items-center gap-4 px-5 py-[18px] text-left', className)} {...props}>
+    <button className={cn('bg-upgrade text-upgrade-foreground font-semibold shadow-xs transition-all hover:bg-upgrade-hover hover:shadow-md active:scale-[0.98] flex w-full items-center gap-4 rounded-lg px-5 py-[18px] text-left', className)} {...props}>
       <span className="min-w-0 flex-1">
         <span className="block text-lg leading-tight font-semibold tracking-tight">{title}</span>
         {sub && <span className="mt-0.5 block text-xs opacity-70">{sub}</span>}
